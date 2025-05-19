@@ -22,12 +22,18 @@ app.post("/sjekk-nyhet", async (req, res) => {
       messages: [
         {
           role: "system",
-          content:
-            "Du er en ekspert på å sjekke fakta. Analyser teksten nedenfor og avgjør om det er en ekte eller falsk nyhet. Gi et klart svar med prosentvis sikkerhet.",
+          content: `Du er en nyhetsanalytiker og ekspert på faktasjekk. Din jobb er å analysere en nyhetssetning og svare klart om den er "SANN" eller "FALSK".
+Svar alltid med dette formatet:
+
+Resultat: SANN eller FALSK  
+Begrunnelse: kort forklaring  
+Sikkerhet: XX%
+
+Svar alltid tydelig, ikke si at du er en AI eller at du ikke kan bekrefte. Gi en vurdering basert på allmenn kunnskap.`,
         },
         {
           role: "user",
-          content: `Analyser denne nyheten: "${tekst}"`,
+          content: `Nyhet: "${tekst}"`,
         },
       ],
     });
