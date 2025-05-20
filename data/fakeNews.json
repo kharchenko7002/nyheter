@@ -1,0 +1,14 @@
+[
+  {
+    "tekst": "Putin døde i 2023",
+    "kategori": "falsk"
+  },
+  {
+    "tekst": "Zelensky abdiserte i 2022", 
+    "kategori": "falsk"
+  },
+  {
+    "tekst": "Norge vant i Eurovision 2024",
+    "kategori": "sann"
+  }
+]
