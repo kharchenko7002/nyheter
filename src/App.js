@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { auth } from "./firebaseConfig.js";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import Register from "./Register.js";
+import Login from "./Login.js";
 
 function App() {
   const [tekst, setTekst] = useState("");
@@ -6,6 +10,20 @@ function App() {
   const [nyhetsartikler, setNyhetsartikler] = useState([]);
   const [laster, setLaster] = useState(false);
   const [språk, setSpråk] = useState("no");
+  const [bruker, setBruker] = useState(null);
+  const [visLogin, setVisLogin] = useState(false);
+  const [visRegister, setVisRegister] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setBruker(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const loggUt = () => {
+    signOut(auth);
+  };
 
   const sjekkNyhet = async () => {
     if (!tekst.trim()) return;
@@ -58,6 +76,21 @@ function App() {
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>Nyhetssjekk</h1>
 
+      {bruker ? (
+        <div style={{ marginBottom: "1rem" }}>
+          Logget inn som <strong>{bruker.email}</strong>{" "}
+          <button onClick={loggUt}>Logg ut</button>
+        </div>
+      ) : (
+        <div style={{ marginBottom: "1rem" }}>
+          <button onClick={() => setVisLogin(!visLogin)}>Logg inn</button>
+          <button onClick={() => setVisRegister(!visRegister)}>Registrer</button>
+        </div>
+      )}
+
+      {visLogin && !bruker && <Login />}
+      {visRegister && !bruker && <Register />}
+
       <textarea
         value={tekst}
         onChange={(e) => setTekst(e.target.value)}
@@ -80,10 +113,16 @@ function App() {
         <button onClick={sjekkNyhet} disabled={laster}>
           {laster ? "Sjekker..." : "Sjekk nyhet (AI)"}
         </button>
-        <button onClick={soekNewsAPI} disabled={laster}>
+        <button onClick={soekNewsAPI} disabled={laster || !bruker}>
           {laster ? "Søker..." : "Søk i NewsAPI"}
         </button>
       </div>
+
+      {!bruker && (
+        <div style={{ color: "gray", fontSize: "0.9rem", marginBottom: "1rem" }}>
+          Du må være logget inn for å bruke NewsAPI-søk.
+        </div>
+      )}
 
       {resultat && (
         <div style={{ marginTop: "2rem", fontSize: "1.2rem" }}>
