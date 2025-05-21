@@ -1,6 +1,6 @@
-import { auth } from "./firebaseConfig.js";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebaseConfig.js";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -9,7 +9,13 @@ function Login() {
 
   const loggInn = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, passord);
+      const bruker = await signInWithEmailAndPassword(auth, email, passord);
+
+      if (!bruker.user.emailVerified) {
+        setMelding("Du må bekrefte e-posten din før du kan logge inn.");
+        return;
+      }
+
       setMelding("Innlogging vellykket!");
     } catch (error) {
       setMelding("Feil: " + error.message);
