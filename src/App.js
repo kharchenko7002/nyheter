@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { auth } from "./firebaseConfig.js";
+import { auth, db } from "./firebaseConfig.js";
 import {
   onAuthStateChanged,
   signOut,
   sendEmailVerification,
 } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import Register from "./Register.js";
 import Login from "./Login.js";
 import ForgotPassword from "./ForgotPassword.js";
 import Profil from "./Profil.js";
+import Oppgrader from "./Oppgrader.js";
+
 
 function App() {
   const [tekst, setTekst] = useState("");
@@ -17,6 +20,7 @@ function App() {
   const [laster, setLaster] = useState(false);
   const [språk, setSpråk] = useState("no");
   const [bruker, setBruker] = useState(null);
+  const [erPremium, setErPremium] = useState(false);
   const [visLogin, setVisLogin] = useState(false);
   const [visRegister, setVisRegister] = useState(false);
   const [visGlemtPassord, setVisGlemtPassord] = useState(false);
@@ -25,11 +29,19 @@ function App() {
   const [brukteSøk, setBrukteSøk] = useState(0);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setBruker(currentUser);
+      if (currentUser) {
+        const docRef = doc(db, "brukere", currentUser.uid);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && snap.data().premium === true) {
+          setErPremium(true);
+        } else {
+          setErPremium(false);
+        }
+      }
     });
 
-    // Last fra localStorage
     const iDag = new Date().toDateString();
     const lagretDato = localStorage.getItem("søkDato");
     const antall = localStorage.getItem("søkTeller");
@@ -62,7 +74,6 @@ function App() {
 
   const sjekkNyhet = async () => {
     if (!tekst.trim()) return;
-
     setLaster(true);
     setNyhetsartikler([]);
     try {
@@ -71,7 +82,6 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tekst }),
       });
-
       const data = await respons.json();
       setResultat(data.resultat);
     } catch (error) {
@@ -82,12 +92,10 @@ function App() {
 
   const soekNewsAPI = async () => {
     if (!tekst.trim()) return;
-
     if (brukteSøk >= 5) {
       setResultat("❌ Du har brukt opp dagens 5 gratis søk.");
       return;
     }
-
     setLaster(true);
     setResultat("");
     setNyhetsartikler([]);
@@ -97,14 +105,12 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tekst, språk }),
       });
-
       const data = await respons.json();
       if (Array.isArray(data.resultat)) {
         setNyhetsartikler(data.resultat);
       } else {
         setResultat(data.resultat);
       }
-
       const nyTeller = brukteSøk + 1;
       setBrukteSøk(nyTeller);
       localStorage.setItem("søkTeller", nyTeller.toString());
@@ -124,6 +130,7 @@ function App() {
               {bruker.displayName || bruker.email}
             </span>
             <button onClick={() => setVisProfil(!visProfil)}>Profil</button>
+            <button onClick={loggUt} style={{ marginLeft: "1rem" }}>Logg ut</button>
           </div>
         )}
       </div>
@@ -177,11 +184,19 @@ function App() {
         </button>
         <button
           onClick={soekNewsAPI}
-          disabled={laster || !bruker || !bruker.emailVerified}
+          disabled={laster || !bruker || !bruker.emailVerified || !erPremium}
         >
           {laster ? "Søker..." : `Søk i NewsAPI (${5 - brukteSøk} igjen)`}
         </button>
       </div>
+{bruker?.emailVerified && !erPremium && <Oppgrader />}
+
+
+      {!erPremium && bruker?.emailVerified && (
+        <div style={{ color: "darkred", fontSize: "0.9rem", marginBottom: "1rem" }}>
+          Denne funksjonen er kun tilgjengelig for premium-brukere.
+        </div>
+      )}
 
       {resultat && (
         <div style={{ marginTop: "2rem", fontSize: "1.2rem" }}>

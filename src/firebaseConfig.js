@@ -1,15 +1,16 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAO6ZFpjE3ZYgZcz97XoL4GNWm8U9QAyY4",
   authDomain: "nyhetssjekk.firebaseapp.com",
   projectId: "nyhetssjekk",
-  storageBucket: "nyhetssjekk.firebasestorage.app",
+  storageBucket: "nyhetssjekk.appspot.com",
   messagingSenderId: "1053070464132",
-  appId: "1:1053070464132:web:3ea875b59e21950f039ed1",
-  measurementId: "G-L33WGZH35K"
+  appId: "1:1053070464132:web:xxx"
 };
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
