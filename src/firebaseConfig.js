@@ -1,3 +1,4 @@
+// src/firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
@@ -8,8 +9,10 @@ const firebaseConfig = {
   storageBucket: "nyhetssjekk.firebasestorage.app",
   messagingSenderId: "1053070464132",
   appId: "1:1053070464132:web:3ea875b59e21950f039ed1",
-  measurementId: "G-L33WGZH35K"
+  measurementId: "G-L33WGZH35K",
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const auth = getAuth(app);
+
+export default auth; // 🔥 импортируй как `auth`

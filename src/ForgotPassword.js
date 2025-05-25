@@ -1,6 +1,8 @@
+// src/ForgotPassword.js
 import { useState } from "react";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "./firebaseConfig.js";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+
+const auth = getAuth();
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");

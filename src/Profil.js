@@ -1,5 +1,5 @@
 import React from "react";
-import { auth } from "./firebaseConfig.js";
+import auth from "./firebaseConfig.js";
 
 function Profil() {
   const bruker = auth.currentUser;

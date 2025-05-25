@@ -1,10 +1,11 @@
+// src/Register.js
 import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
-} from "firebase/auth";
-import { auth } from "./firebaseConfig.js";
+} from "./firebase-auth.js";
+import auth from "./firebaseConfig.js";
 
 function Register() {
   const [fornavn, setFornavn] = useState("");
