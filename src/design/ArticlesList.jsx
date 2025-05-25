@@ -2,26 +2,29 @@
 import { motion } from "framer-motion";
 
 export default function ArticlesList({ nyhetsartikler }) {
-  if (nyhetsartikler.length === 0) return null;
+  if (!nyhetsartikler || nyhetsartikler.length === 0) return null;
+
   return (
     <motion.div
-      className="bg-gray-100 dark:bg-gray-800 p-4 rounded shadow"
+      className="bg-sky-50 border border-sky-200 p-6 rounded-2xl shadow-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <strong>Relevante artikler:</strong>
-      <ul className="mt-2 list-disc pl-5">
+      <h3 className="text-lg font-semibold text-sky-800 mb-3">
+        Relevante artikler:
+      </h3>
+      <ul className="space-y-3">
         {nyhetsartikler.map((artikkel, index) => (
-          <li key={index} className="mb-2">
+          <li key={index} className="">
             <a
               href={artikkel.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline"
+              className="text-sky-700 font-medium hover:underline"
             >
               {artikkel.tittel}
             </a>
-            <div className="text-sm text-gray-500">{artikkel.kilde}</div>
+            <div className="text-sm text-sky-500">{artikkel.kilde}</div>
           </li>
         ))}
       </ul>

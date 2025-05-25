@@ -1,18 +1,31 @@
+// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import fetch from "node-fetch";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// Log IP-adresse for hver request
+app.use((req, res, next) => {
+  const rawIp = req.headers['x-forwarded-for'] || req.ip;
+  const ip = rawIp.replace(/^.*:/, '');
+  console.log("🔍 Normalisert IP:", ip);
+  req.normalizedIp = ip;
+  next();
 });
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Midlertidig minne for gjeste-IP bruk
+const gjesteTeller = {};
 
 // === GPT-4 analyse av nyheten ===
 app.post("/sjekk-nyhet", async (req, res) => {
@@ -24,7 +37,7 @@ app.post("/sjekk-nyhet", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `Du er en nyhetsanalytiker og ekspert på faktasjekk. Din jobb er å analysere en nyhetssetning og svare klart om den er "SANN" eller "FALSK".
+          content: `Du er en nyhetsanalytiker og ekspert på faktasjekk. Din jobb er å analysere en nyhetssetning og svare klart om den er \"SANN\" eller \"FALSK\".
 Svar alltid med dette formatet:
 
 Resultat: SANN eller FALSK  
@@ -33,10 +46,7 @@ Sikkerhet: XX%
 
 Svar alltid tydelig, ikke si at du er en AI eller at du ikke kan bekrefte. Gi en vurdering basert på allmenn kunnskap.`,
         },
-        {
-          role: "user",
-          content: `Nyhet: "${tekst}"`,
-        },
+        { role: "user", content: `Nyhet: "${tekst}"` },
       ],
     });
 
@@ -48,62 +58,67 @@ Svar alltid tydelig, ikke si at du er en AI eller at du ikke kan bekrefte. Gi en
   }
 });
 
-// === Forbedret søk i NewsAPI ===
+// === NewsAPI med begrensning ===
 app.post("/soek-nyhet-newsapi", async (req, res) => {
-  const { tekst, språk } = req.body;
-  const valgtSpråk = språk || "no";
+  const { tekst, språk, email } = req.body;
+  console.log("📥 mottatt email:", email);
 
-  // === Rens og velg nøkkelord ===
-  const nøkkelord = tekst
+  const valgtSprak = språk || "no";
+  const ip = req.normalizedIp;
+
+  const erInnlogget = Boolean(email);
+  if (!erInnlogget) {
+    gjesteTeller[ip] = (gjesteTeller[ip] || 0) + 1;
+    const antallBrukt = gjesteTeller[ip];
+    const antallIgjen = Math.max(0, 5 - antallBrukt);
+
+    console.log("🧠 Bruker-IP:", ip, "Forsøk brukt:", antallBrukt);
+
+    if (antallBrukt > 5) {
+      return res.status(429).json({
+        resultat: `❌ Du har brukt opp gjestegrensen. Logg inn for ubegrenset tilgang. (${antallIgjen} igjen)`
+      });
+    }
+  }
+
+  const renset = tekst
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
     .split(" ")
     .filter((ord) => ord.length > 3)
     .slice(0, 6)
     .join(" ");
 
-  const q1 = encodeURIComponent(nøkkelord);
+  const q1 = encodeURIComponent(renset);
   const q2 = encodeURIComponent(tekst.split(" ").slice(0, 3).join(" "));
-
   const baseURL = "https://newsapi.org/v2/everything";
-
-  // === Første forsøk (avansert søk i tittel + relevans)
-  const url1 = `${baseURL}?qInTitle=${q1}&language=${valgtSpråk}&sortBy=relevancy&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`;
-
-  // === Andre forsøk (hvis første gir null)
-  const url2 = `${baseURL}?q=${q2}&language=${valgtSpråk}&sortBy=publishedAt&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`;
+  const url1 = `${baseURL}?qInTitle=${q1}&language=${valgtSprak}&sortBy=relevancy&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`;
+  const url2 = `${baseURL}?q=${q2}&language=${valgtSprak}&sortBy=publishedAt&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`;
 
   try {
-    const første = await fetch(url1);
-    const data1 = await første.json();
+    const f1 = await fetch(url1);
+    const d1 = await f1.json();
 
-    console.log("🔍 Primært søk etter:", nøkkelord);
-    console.log("🌐 URL 1:", url1);
-    console.log("📦 Resultat 1:", JSON.stringify(data1, null, 2));
-
-    if (data1.articles && data1.articles.length > 0) {
-      const funn = data1.articles.map((artikkel) => ({
-        tittel: artikkel.title,
-        kilde: artikkel.source.name,
-        url: artikkel.url,
-      }));
-      return res.json({ resultat: funn });
+    if (d1.articles?.length > 0) {
+      return res.json({
+        resultat: d1.articles.map((a) => ({
+          tittel: a.title,
+          kilde: a.source.name,
+          url: a.url,
+        })),
+      });
     }
 
-    // === Fallback hvis ingen resultater
-    const backup = await fetch(url2);
-    const data2 = await backup.json();
+    const f2 = await fetch(url2);
+    const d2 = await f2.json();
 
-    console.log("🔁 Fallback søk etter:", tekst);
-    console.log("🌐 URL 2:", url2);
-    console.log("📦 Resultat 2:", JSON.stringify(data2, null, 2));
-
-    if (data2.articles && data2.articles.length > 0) {
-      const funn = data2.articles.map((artikkel) => ({
-        tittel: artikkel.title,
-        kilde: artikkel.source.name,
-        url: artikkel.url,
-      }));
-      return res.json({ resultat: funn });
+    if (d2.articles?.length > 0) {
+      return res.json({
+        resultat: d2.articles.map((a) => ({
+          tittel: a.title,
+          kilde: a.source.name,
+          url: a.url,
+        })),
+      });
     }
 
     res.json({ resultat: "❌ Ingen relevante nyhetsartikler ble funnet." });

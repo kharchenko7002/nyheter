@@ -1,4 +1,3 @@
-// src/AppRoutes.jsx
 import { Routes, Route } from "react-router-dom";
 import Hjem from "./pages/Hjem.jsx";
 import BrukProgrammet from "./pages/BrukProgrammet.jsx";
@@ -7,6 +6,7 @@ import HvordanAvsloreFalskeNyheter from "./pages/HvordanAvsloreFalskeNyheter.jsx
 import OmMedietilsynet from "./pages/OmMedietilsynet.jsx";
 import KontaktOss from "./pages/KontaktOss.jsx";
 import Profil from "./pages/Profil.jsx";
+import FaktasjekkTest from "./pages/FaktasjekkTest.jsx"; // ⬅️ импорт
 
 export default function AppRoutes() {
   return (
@@ -18,6 +18,7 @@ export default function AppRoutes() {
       <Route path="/om" element={<OmMedietilsynet />} />
       <Route path="/kontakt" element={<KontaktOss />} />
       <Route path="/profil" element={<Profil />} />
+      <Route path="/faktasjekk-test" element={<FaktasjekkTest />} /> {/* ⬅️ новый маршрут */}
     </Routes>
   );
 }
