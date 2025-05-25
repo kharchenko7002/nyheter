@@ -22,21 +22,33 @@ export default function Modal({ open, onClose, title, children }) {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-violet-900 text-white p-6 rounded-2xl shadow-xl max-w-md w-full mx-4"
+            className="bg-white text-sky-900 p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">{title}</h2>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="flex justify-between items-center mb-4"
+            >
+              <h2 className="text-xl font-bold text-sky-800">{title}</h2>
               <button
                 onClick={onClose}
-                className="text-white hover:text-gray-200 text-xl"
+                className="text-sky-600 hover:text-sky-800 text-xl"
               >
                 &times;
               </button>
-            </div>
-            <div className="space-y-4">{children}</div>
+            </motion.div>
+            <motion.div
+              className="space-y-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              {children}
+            </motion.div>
           </motion.div>
         </motion.div>
       )}
