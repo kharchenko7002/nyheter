@@ -1,16 +1,14 @@
 // src/layout/DashboardLayout.jsx
 import React from "react";
-import Sidebar from "../layout/Sidebar.jsx";
-import Topbar from "../layout/Topbar.jsx";
+import Sidebar from "./Sidebar.jsx";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-[#f4f7fe]">
+    <div className="flex">
       <Sidebar />
-      <div className="flex flex-col flex-1">
-        <Topbar />
-        <main className="p-6">{children}</main>
-      </div>
+      <main className="flex-1 bg-[#f4f7fe] min-h-screen p-6">
+        {children}
+      </main>
     </div>
   );
 }

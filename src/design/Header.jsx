@@ -1,6 +1,5 @@
 // src/design/Header.jsx
 import { ShieldCheck, Moon, Sun } from "lucide-react";
-import Topbar from "../layout/Topbar";
 
 export default function Header({ tema, toggleTema, bruker, loggUt, onToggleProfil }) {
   return (
@@ -22,7 +21,6 @@ export default function Header({ tema, toggleTema, bruker, loggUt, onToggleProfi
           )}
         </div>
       </div>
-      <Topbar bruker={bruker} onToggleProfil={onToggleProfil} />
     </div>
   );
 }
