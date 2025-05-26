@@ -39,6 +39,24 @@ const spørsmål = [
       "Ignorere innholdet og se på kommentarene."
     ],
     korrektIndex: 0
+  },
+  {
+    tekst: "Hva betyr kildekritikk?",
+    alternativer: [
+      "Å godta alt man leser.",
+      "Å vurdere om kilden er troverdig og aktuell.",
+      "Å skrive egne nyheter."
+    ],
+    korrektIndex: 1
+  },
+  {
+    tekst: "Hvordan oppdager du manipulerte bilder?",
+    alternativer: [
+      "De har alltid vannmerke.",
+      "De vises ikke på telefon.",
+      "Ved å gjøre omvendt bildesøk og analysere detaljer."
+    ],
+    korrektIndex: 2
   }
 ];
 
@@ -47,6 +65,7 @@ export default function FaktasjekkTest() {
   const [aktuell, setAktuell] = useState(0);
   const [riktige, setRiktige] = useState(0);
   const [ferdig, setFerdig] = useState(false);
+  const [valg, setValg] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,7 +77,9 @@ export default function FaktasjekkTest() {
   }, [navigate]);
 
   const svar = (index) => {
-    if (index === spørsmål[aktuell].korrektIndex) setRiktige(riktige + 1);
+    const korrekt = index === spørsmål[aktuell].korrektIndex;
+    if (korrekt) setRiktige(riktige + 1);
+    setValg([...valg, index]);
     if (aktuell + 1 === spørsmål.length) setFerdig(true);
     else setAktuell(aktuell + 1);
   };
@@ -74,9 +95,40 @@ export default function FaktasjekkTest() {
       )}
 
       {ferdig ? (
-        <div className="bg-green-100 text-green-800 p-6 rounded shadow">
-          <h2 className="text-xl font-bold mb-2">Resultat</h2>
-          <p>Du fikk {riktige} av {spørsmål.length} riktige!</p>
+        <div className="space-y-6">
+          <div className="bg-green-100 text-green-800 p-6 rounded shadow">
+            <h2 className="text-xl font-bold mb-2">Resultat</h2>
+            <p>Du fikk {riktige} av {spørsmål.length} riktige!</p>
+          </div>
+          <div className="bg-white p-6 rounded shadow">
+            <h3 className="text-lg font-semibold mb-4">Gjennomgang av spørsmål:</h3>
+            <div className="space-y-4">
+              {spørsmål.map((spm, idx) => (
+                <div key={idx}>
+                  <p className="font-medium mb-1">{idx + 1}. {spm.tekst}</p>
+                  {spm.alternativer.map((alt, altIdx) => {
+                    const erKorrekt = altIdx === spm.korrektIndex;
+                    const erValgt = altIdx === valg[idx];
+                    return (
+                      <div
+                        key={altIdx}
+                        className={`px-3 py-2 rounded border
+                          ${erKorrekt ? "bg-green-100 border-green-500 text-green-800" : ""}
+                          ${erValgt && !erKorrekt ? "bg-red-100 border-red-500 text-red-800" : ""}
+                          ${!erKorrekt && !erValgt ? "bg-gray-50 border-gray-300" : ""}
+                        `}
+                      >
+                        {alt}
+                        {erValgt && !erKorrekt && <span className="ml-2 italic">(Ditt svar)</span>}
+                        {erValgt && erKorrekt && <span className="ml-2 italic">(Riktig svar)</span>}
+                        {!erValgt && erKorrekt && <span className="ml-2 italic">(Korrekt svar)</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="bg-white p-6 rounded shadow">

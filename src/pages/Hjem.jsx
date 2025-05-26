@@ -62,8 +62,8 @@ export default function Hjem() {
         <h2 className="text-2xl font-semibold text-sky-700 mb-4">Video 🎥</h2>
         <div className="space-y-4">
           <p className="text-gray-700">
-            📺 <a href="https://www.youtube.com/watch?v=MOaPRcWCxw4" className="text-sky-600 underline" target="_blank" rel="noopener noreferrer">
-              Hvordan avsløre falske nyheter
+            📺 <a href="https://youtu.be/-H82LqX80_o" className="text-sky-600 underline" target="_blank" rel="noopener noreferrer">
+              Markedsføring
             </a>
           </p>
         </div>
