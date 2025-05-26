@@ -1,4 +1,3 @@
-// src/layout/Sidebar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -10,10 +9,12 @@ import {
   Settings,
   Info,
   Mail,
-  User
+  User,
+  HandCoins
 } from "lucide-react";
 import auth from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "../firebase-auth";
+import logo from "../assets/bilde.png"; // Импорт логотипа
 
 export default function Sidebar({ onLoginClick, onRegisterClick }) {
   const location = useLocation();
@@ -42,7 +43,8 @@ export default function Sidebar({ onLoginClick, onRegisterClick }) {
   return (
     <>
       <aside className="w-64 bg-white shadow-md px-6 py-8 hidden md:block">
-        <h2 className="text-2xl font-bold mb-8 text-sky-700">medietilsynet</h2>
+<img src={logo} alt="Medietilsynet logo" className="h-20 w-full object-contain mb-8" />
+
         <nav className="space-y-4">
           <Link
             to="/"
@@ -105,6 +107,14 @@ export default function Sidebar({ onLoginClick, onRegisterClick }) {
             }`}
           >
             <Mail size={20} /> Kontakt oss
+          </Link>
+          <Link
+            to="/stott"
+            className={`flex items-center gap-3 hover:text-sky-600 ${
+              isActive("/stott") ? "text-sky-600 font-semibold" : "text-gray-700"
+            }`}
+          >
+            <HandCoins size={20} /> Støtt prosjektet
           </Link>
           {bruker && (
             <button

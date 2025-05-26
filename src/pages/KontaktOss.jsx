@@ -49,6 +49,11 @@ export default function KontaktOss() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-sky-800">Kontakt oss</h2>
+      <img
+        src="https://dintekstforfatter.no/wp-content/uploads/2021/01/men-4451373_1280.png"
+        alt="Kontakt illustrasjon"
+        className="w-full max-w-sm mx-auto mb-6 rounded"
+      />
       <p className="text-gray-600 mb-6">
         Her kan du sende oss en melding om du har forslag, problemer eller spørsmål.
       </p>

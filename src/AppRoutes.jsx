@@ -6,7 +6,8 @@ import HvordanAvsloreFalskeNyheter from "./pages/HvordanAvsloreFalskeNyheter.jsx
 import OmMedietilsynet from "./pages/OmMedietilsynet.jsx";
 import KontaktOss from "./pages/KontaktOss.jsx";
 import Profil from "./pages/Profil.jsx";
-import FaktasjekkTest from "./pages/FaktasjekkTest.jsx"; // ⬅️ импорт
+import FaktasjekkTest from "./pages/FaktasjekkTest.jsx";
+import StottProsjektet from "./pages/StottProsjektet.jsx";
 
 export default function AppRoutes() {
   return (
@@ -18,7 +19,8 @@ export default function AppRoutes() {
       <Route path="/om" element={<OmMedietilsynet />} />
       <Route path="/kontakt" element={<KontaktOss />} />
       <Route path="/profil" element={<Profil />} />
-      <Route path="/faktasjekk-test" element={<FaktasjekkTest />} /> {/* ⬅️ новый маршрут */}
+      <Route path="/faktasjekk-test" element={<FaktasjekkTest />} />
+      <Route path="/stott" element={<StottProsjektet />} />
     </Routes>
   );
 }
